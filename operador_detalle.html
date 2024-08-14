@@ -1,0 +1,338 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Panel de Liquidación - Trattosa</title>
+    <link rel="stylesheet" href="styles.css">
+    <style>
+        /* Estilos personalizados */
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #f0f2f5;
+            margin: 0;
+            padding: 0;
+        }
+        header {
+            background-color: #007BFF;
+            color: #fff;
+            padding: 10px;
+            text-align: center;
+        }
+        header h2 {
+            margin: 0;
+        }
+        header button {
+            background-color: #0056b3;
+            border: none;
+            color: white;
+            padding: 10px 20px;
+            text-align: center;
+            text-decoration: none;
+            display: inline-block;
+            font-size: 16px;
+            margin: 4px 2px;
+            cursor: pointer;
+            border-radius: 5px;
+        }
+        main {
+            padding: 20px;
+            max-width: 1200px;
+            margin: auto;
+        }
+        form {
+            background-color: #fff;
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0 4px 8px rgba(0,0,0,0.2);
+            margin-bottom: 20px;
+        }
+        form label {
+            display: block;
+            margin: 10px 0 5px;
+        }
+        form input {
+            width: calc(100% - 22px);
+            padding: 10px;
+            margin-bottom: 10px;
+            border-radius: 5px;
+            border: 1px solid #ddd;
+        }
+        form .form-buttons {
+            display: flex;
+            justify-content: space-between;
+        }
+        form .form-buttons button {
+            background-color: #007BFF;
+            border: none;
+            color: white;
+            padding: 10px 20px;
+            font-size: 16px;
+            cursor: pointer;
+            border-radius: 5px;
+        }
+        form .form-buttons button:disabled {
+            background-color: #ccc;
+            cursor: not-allowed;
+        }
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-bottom: 20px;
+        }
+        table th, table td {
+            border: 1px solid #ddd;
+            padding: 8px;
+            text-align: left;
+            background-color: #ffffff;
+        }
+        table th {
+            background-color: #007BFF;
+            color: white;
+        }
+        table tr:nth-child(even) {
+            background-color: #f2f2f2;
+        }
+        table button {
+            background-color: #007BFF;
+            border: none;
+            color: white;
+            padding: 5px 10px;
+            font-size: 14px;
+            cursor: pointer;
+            border-radius: 5px;
+        }
+        table button:disabled {
+            background-color: #ccc;
+            cursor: not-allowed;
+        }
+        .chatbot-icon img {
+            width: 50px;
+            position: fixed;
+            bottom: 20px;
+            right: 20px;
+            cursor: pointer;
+        }
+        .chatbot-window {
+            display: none;
+            position: fixed;
+            bottom: 80px;
+            right: 20px;
+            width: 300px;
+            border: 1px solid #ddd;
+            border-radius: 8px;
+            background-color: #fff;
+            box-shadow: 0 4px 8px rgba(0,0,0,0.2);
+        }
+        .chatbot-header, .chatbot-footer {
+            background-color: #007BFF;
+            color: #fff;
+            padding: 10px;
+            border-radius: 8px 8px 0 0;
+        }
+        .chatbot-body {
+            padding: 10px;
+            height: 200px;
+            overflow-y: auto;
+        }
+    </style>
+</head>
+<body>
+    <header>
+        <h2>Panel de Liquidación</h2>
+        <button onclick="logout()">Salir</button>
+    </header>
+
+    <main>
+        <h3>Información del Empleado</h3>
+        <form id="employee-form">
+            <label for="employee-select">Seleccionar Empleado:</label>
+            <select id="employee-select" onchange="loadEmployeeInfo()">
+                <!-- Opciones cargadas dinámicamente -->
+            </select>
+
+            <label for="name">Nombre:</label>
+            <input type="text" id="name" disabled>
+
+            <label for="email">Email:</label>
+            <input type="email" id="email" disabled>
+
+            <label for="phone">Teléfono:</label>
+            <input type="tel" id="phone" disabled>
+
+            <div class="form-buttons">
+                <button type="button" onclick="editEmployeeInfo()">Editar</button>
+                <button type="button" onclick="saveEmployeeInfo()" disabled>Guardar</button>
+            </div>
+        </form>
+
+        <h3>Viajes</h3>
+        <table id="trips-table">
+            <thead>
+                <tr>
+                    <th>Destino</th>
+                    <th>Total</th>
+                    <th>Fecha de Pago</th>
+                    <th>Observaciones</th>
+                </tr>
+            </thead>
+            <tbody>
+                <!-- Filas cargadas dinámicamente -->
+            </tbody>
+        </table>
+
+        <div class="chatbot-icon" onclick="toggleChatbot()">
+            <img src="img/chatbot_icon.png" alt="Chatbot">
+        </div>
+        <div id="chatbot" class="chatbot-window">
+            <div class="chatbot-header">
+                <h4>Trabot</h4>
+            </div>
+            <div class="chatbot-body"></div>
+            <div class="chatbot-footer">
+                <input type="text" id="chatbot-input" placeholder="Escribe un mensaje...">
+                <button onclick="sendMessage()">Enviar</button>
+            </div>
+        </div>
+    </main>
+
+    <script>
+        // Datos de empleados para pruebas
+        const employeesData = {
+            'Kevin Cervantes Hernandez': {
+                name: 'Kevin Cervantes Hernandez',
+                email: 'kevin@example.com',
+                phone: '1234567890',
+                trips: [
+                    { destino: 'Tol-Ver.Tol', total: '$100', fecha: '2024-08-10', observaciones: 'viaje rapido' },
+                    { destino: 'Tol-Lzc-Tol', total: '$200', fecha: '2024-08-11', observaciones: 'Observación 2' }
+                ]
+            },
+            'Giovanni Bernal Padilla': {
+                name: 'Giovanni Bernal Padilla',
+                email: 'giovanni.bernal@example.com',
+                phone: '555-5678',
+                trips: [
+                    { destino: 'Queretaro-laredo', total: '$1500', fecha: '2024-08-02', observaciones: 'Descuento del imss.' }
+                ]
+            },
+            'Carlos Nolasco Perez': {
+                name: 'Carlos Nolasco Perez',
+                email: 'carlos.nolasco@example.com',
+                phone: '555-9101',
+                trips: [
+                    { destino: 'Toluca-Merida-Toluca', total: '$2000', fecha: '2024-08-03', observaciones: 'Incentivos' }
+                ]
+            },
+            'Juan Carlos Hidalgo Gonzalez': {
+                name: 'Juan Carlos Hidalgo Gonzalez',
+                email: 'juan.carlos@example.com',
+                phone: '555-1122',
+                trips: [
+                    { destino: 'Toluca-laredo-toluca', total: '$1200', fecha: '2024-08-04', observaciones: 'Descuento de prestamo' }
+                ]
+            }
+        };
+
+        function logout() {
+            window.location.href = 'index.html'; // Redirige a la página de inicio de sesión
+        }
+
+        function loadEmployees() {
+            const employeeSelect = document.getElementById('employee-select');
+            for (const key in employeesData) {
+                const option = document.createElement('option');
+                option.value = key;
+                option.textContent = key;
+                employeeSelect.appendChild(option);
+            }
+        }
+
+        function loadEmployeeInfo() {
+            const employeeId = document.getElementById('employee-select').value;
+            const employee = employeesData[employeeId];
+            document.getElementById('name').value = employee.name;
+            document.getElementById('email').value = employee.email;
+            document.getElementById('phone').value = employee.phone;
+
+            const table = document.getElementById('trips-table').getElementsByTagName('tbody')[0];
+            table.innerHTML = ''; // Limpiar tabla antes de cargar datos
+            employee.trips.forEach(trip => {
+                const row = table.insertRow();
+                row.innerHTML = `
+                    <td>${trip.destino}</td>
+                    <td>${trip.total}</td>
+                    <td>${trip.fecha}</td>
+                    <td>${trip.observaciones}</td>
+                `;
+            });
+        }
+
+        function editEmployeeInfo() {
+            document.getElementById('name').disabled = false;
+            document.getElementById('email').disabled = false;
+            document.getElementById('phone').disabled = false;
+            document.querySelector('form .form-buttons button[type="button"]').disabled = true;
+            document.querySelector('form .form-buttons button[type="button"]:nth-of-type(2)').disabled = false;
+        }
+
+        function saveEmployeeInfo() {
+            const employeeId = document.getElementById('employee-select').value;
+            const employee = employeesData[employeeId];
+            employee.name = document.getElementById('name').value;
+            employee.email = document.getElementById('email').value;
+            employee.phone = document.getElementById('phone').value;
+
+            // Guardar en localStorage
+            localStorage.setItem('employeesData', JSON.stringify(employeesData));
+
+            document.getElementById('name').disabled = true;
+            document.getElementById('email').disabled = true;
+            document.getElementById('phone').disabled = true;
+            document.querySelector('form .form-buttons button[type="button"]').disabled = false;
+            document.querySelector('form .form-buttons button[type="button"]:nth-of-type(2)').disabled = true;
+        }
+
+        function toggleChatbot() {
+            const chatbot = document.getElementById('chatbot');
+            chatbot.style.display = chatbot.style.display === 'none' ? 'block' : 'none';
+        }
+
+        function sendMessage() {
+            const input = document.getElementById('chatbot-input');
+            const message = input.value;
+            if (message.trim() === '') return;
+            
+            const chatbotBody = document.querySelector('.chatbot-body');
+            const userMessageDiv = document.createElement('div');
+            userMessageDiv.textContent = `Usuario: ${message}`;
+            chatbotBody.appendChild(userMessageDiv);
+            input.value = '';
+
+            // Procesar la pregunta
+            const response = getChatbotResponse(message);
+            setTimeout(() => {
+                const responseDiv = document.createElement('div');
+                responseDiv.textContent = `Chatbot: ${response}`;
+                chatbotBody.appendChild(responseDiv);
+            }, 500);
+        }
+
+        function getChatbotResponse(message) {
+            const lowerMessage = message.toLowerCase();
+            if (lowerMessage.includes('descuento') || lowerMessage.includes('descontado')) {
+                return 'Para saber qué fue descontado, por favor revisa la sección de "Detalles del Viaje".';
+            } else if (lowerMessage.includes('cuánto vale un viaje') || lowerMessage.includes('valor del viaje')) {
+                return 'El valor de un viaje depende del destino y la fecha. Consulta la tabla de viajes para más detalles.';
+            } else if (lowerMessage.includes('observaciones') || lowerMessage.includes('nota')) {
+                return 'Las observaciones de cada viaje están disponibles en la tabla de viajes. Revisa la columna de "Observaciones".';
+            } else {
+                return 'Lo siento, no entendí tu pregunta. Por favor, intenta preguntar algo diferente.';
+            }
+        }
+        document.addEventListener('DOMContentLoaded', function() {
+            loadEmployees();
+        });
+    </script>
+</body>
+</html>

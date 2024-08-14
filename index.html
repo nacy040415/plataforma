@@ -1,0 +1,155 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Inicio de Sesión - Trattosa</title>
+    <link rel="stylesheet" href="styles.css">
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #f0f2f5;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            margin: 0;
+        }
+        .login-container {
+            background-color: #fff;
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0 4px 8px rgba(0,0,0,0.2);
+            width: 300px;
+        }
+        .login-container h2 {
+            margin: 0 0 20px;
+        }
+        .login-container label {
+            display: block;
+            margin: 10px 0 5px;
+        }
+        .login-container input {
+            width: 100%;
+            padding: 10px;
+            margin-bottom: 10px;
+            border-radius: 5px;
+            border: 1px solid #ddd;
+        }
+        .login-container button {
+            background-color: #007BFF;
+            border: none;
+            color: white;
+            padding: 10px;
+            width: 100%;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 16px;
+        }
+        .login-container button:disabled {
+            background-color: #ccc;
+            cursor: not-allowed;
+        }
+    </style>
+</head>
+<body>
+    <div class="login-container">
+        <h2>Inicio de Sesión</h2>
+        <form id="login-form" onsubmit="login(event)">
+            <label for="role">Tipo de Usuario</label>
+            <select id="role" name="role" required>
+                <option value="operador">Operador</option>
+                <option value="empleado">Empleado de Liquidación</option>
+            </select>
+            
+            <label for="username">Nombre de Usuario</label>
+            <input type="text" id="username" name="username" required>
+            
+            <label for="password">Contraseña</label>
+            <input type="password" id="password" name="password" required>
+            <button type="submit">Iniciar Sesión</button>
+        </form>
+    </div>
+
+    <script>
+        function login(event) {
+            event.preventDefault();
+            
+            const role = document.getElementById('role').value;
+            const username = document.getElementById('username').value;
+            const password = document.getElementById('password').value;
+            
+            // Datos de usuarios
+            const validOperators = {
+                'Kevin Cervantes Hernandez': 'kev12',
+                'Giovanni Bernal Padilla': 'gio12',
+                'Carlos Nolasco Perez': 'Car12',
+                'Juan Carlos Hidalgo Gonzalez': 'jua12'
+            };
+    
+            const validEmployees = {
+                'Nancy Padilla': 'np12',
+                'Daniela De Jesus': 'dan12',
+                'Jorge Flores': 'jor12'
+            };
+
+            // Verificación de credenciales
+            if (role === 'operador') {
+                if (validOperators[username] === password) {
+                    localStorage.setItem('loggedInUser', username);
+                    window.location.href = 'operador_detalle.html';
+                } else {
+                    alert('Usuario o contraseña incorrectos');
+                }
+            } else if (role === 'empleado') {
+                if (validEmployees[username] === password) {
+                    localStorage.setItem('loggedInUser', username);
+                    window.location.href = 'dashboard_liquidacion.html';
+                } else {
+                    alert('Usuario o contraseña incorrectos');
+                }
+            }
+        }
+
+        // Datos de empleados para pruebas
+        const employeesData = {
+            'Kevin Cervantes Hernandez': {
+                name: 'Kevin Cervantes Hernandez',
+                email: 'kevin@example.com',
+                phone: '1234567890',
+                trips: [
+                    { destino: 'Tol-Ver.Tol', total: '$100', fecha: '2024-08-10', observaciones: 'viaje rapido' },
+                    { destino: 'Tol-Lzc-Tol', total: '$200', fecha: '2024-08-11', observaciones: 'Observación 2' }
+                ]
+            },
+            'Giovanni Bernal Padilla': {
+                name: 'Giovanni Bernal Padilla',
+                email: 'giovanni.bernal@example.com',
+                phone: '555-5678',
+                trips: [
+                    { destino: 'Queretaro-laredo', total: '$1500', fecha: '2024-08-02', observaciones: 'Descuento del imss.' }
+                ]
+            },
+            'Carlos Nolasco Perez': {
+                name: 'Carlos Nolasco Perez',
+                email: 'carlos.nolasco@example.com',
+                phone: '555-9101',
+                trips: [
+                    { destino: 'Toluca-Merida-Toluca', total: '$2000', fecha: '2024-08-03', observaciones: 'Incentivos' }
+                ]
+            },
+            'Juan Carlos Hidalgo Gonzalez': {
+                name: 'Juan Carlos Hidalgo Gonzalez',
+                email: 'juan.carlos@example.com',
+                phone: '555-1122',
+                trips: [
+                    { destino: 'Toluca-laredo-toluca', total: '$1200', fecha: '2024-08-04', observaciones: 'Descuento de prestamo' }
+                ]
+            }
+        };
+
+
+        localStorage.setItem('employeesData', JSON.stringify(employeesData));
+    </script>
+</body>
+</html>
